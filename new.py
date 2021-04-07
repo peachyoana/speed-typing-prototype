@@ -66,6 +66,7 @@ from tkinter import *
 from time import *
 import time, datetime, random
 import database
+from stopwatch import Stopwatch 
 
 """
 User class that stores username
@@ -137,7 +138,8 @@ class GUI:
         self.menubar = Menu(master)  # initiate menu template
         self.optionsmenu = Menu(self.menubar)  # initiate options menu
         self.helpmenu = Menu(self.menubar, tearoff=0)  # initiate help menu
-
+        self.master.resizable(False, False) # don't allow user to resize box
+        
         # screen stats
         self.x = 800
         self.y = 600
@@ -145,8 +147,7 @@ class GUI:
         self.monitor_width = root.winfo_screenwidth()
         self.monitor_height = root.winfo_screenheight()
 
-        self.get_user(self.x, self.y,
-                      self.monitor_width, self.monitor_height)
+       # self.get_user(self.x, self.y, self.monitor_width, self.monitor_height)
 
         self.place_on_screen(self.x, self.y,
                              self.monitor_width, self.monitor_height)
@@ -230,6 +231,51 @@ class GUI:
 
         self.master.config(menu=self.menubar)
 
+    def timer(self):
+        
+        # https://www.geeksforgeeks.org/create-stopwatch-using-python/
+        # to get miliseconds: milliseconds = int(round(time.time() * 1000))
+        # using stopwatch module
+        stopwatch = Stopwatch()
+        stopwatch.reset()
+
+        text_string = StringVar()
+
+        def start():
+            self.text_box.delete(1.0, END)
+            stopwatch.start()
+            update()
+
+        def start_with_button():
+            # waits 1 second until player puts their cursor in typing field
+            time.sleep(1)
+            self.text_box.delete(1.0, END)
+            stopwatch.start()
+            update()
+
+        def restart():
+            stopwatch.reset()
+            self.input_box.delete(1.0, END)
+
+        def update():
+            time_label.configure(text=str(stopwatch))
+            self.master.after(50, update)
+
+        def stop():
+            stopped_time = stopwatch.stop()
+            stopwatch.stop()
+            return stopped_time
+
+        self.start_button = Button(self.master, text="Press me to start", command=start_with_button)
+        self.start_button.place(height=30, width=100, relx=0.37, rely=0.6, anchor='center')
+
+        self.restart_button = Button(self.master, text="Restart", command=restart)
+        self.restart_button.place(height=30, width=100, relx=0.5, rely=0.6, anchor='center')
+
+        time_label = Label(self.master, bg="#ffffff", fg="#000000")
+        time_label.place(height=35, width=100, relx=0.07, rely=0.04, anchor='center')
+   
+   
     def interaction_boxes(self):
         def text_box():
             self.text_box = Text(self.master,
@@ -249,11 +295,12 @@ class GUI:
         entry_box()
 
     def buttons(self):
-        def start():
-            self.text_box.delete(1.0, END)
+        # def start():                       # 07/04/2021 I decided to move those methods to
+        #     self.text_box.delete(1.0, END)    # the timer function
+        #     self.timer()
 
-        def restart():
-            self.input_box.delete(1.0, END)
+        # def restart():
+        #     self.input_box.delete(1.0, END)
 
         def _genre_button():
             """ Research and add more options"""
@@ -274,11 +321,11 @@ class GUI:
             from that genre making a link to the database
             """
 
-        self.start_button = Button(self.master, text="Press me to start", command=start)
-        self.start_button.place(height=30, width=100, relx=0.37, rely=0.6, anchor='center')
+        # self.start_button = Button(self.master, text="Press me to start", command=start)
+        # self.start_button.place(height=30, width=100, relx=0.37, rely=0.6, anchor='center')
 
-        self.restart_button = Button(self.master, text="Restart", command=restart)
-        self.restart_button.place(height=30, width=100, relx=0.5, rely=0.6, anchor='center')
+        # self.restart_button = Button(self.master, text="Restart", command=restart)
+        # self.restart_button.place(height=30, width=100, relx=0.5, rely=0.6, anchor='center')
 
         self.genre_button = Button(self.master, text="Genre", command=_genre_button)
         self.genre_button.place(height=30, width=100, relx=0.63, rely=0.6, anchor='center')
@@ -301,34 +348,9 @@ class GUI:
         self.time_label.place(height=35, width=100, relx=0.93, rely=0.04, anchor='center')
         update_clock()
 
-    def timer(self):
-        # https://www.geeksforgeeks.org/create-stopwatch-using-python/
-        counter = 66600
-        running = False
+    
 
-        def counter_label(label):
-            def count():
-                if running:
-                    global counter
 
-                    # To manage the intial delay.
-                    if counter == 66600:
-                        display = "Starting..."
-                    else:
-                        tt = datetime.fromtimestamp(counter)
-                        string = tt.strftime("%H:%M:%S")
-                        display = string
-
-                    label.config(text=display)
-                    label.after(1000, count)
-                    counter += 1
-
-            # Triggering the start of the counter.
-            count()
-
-        label = Label(self.master)
-        label.place(height=35, width=100, relx=0.07, rely=0.04, anchor='center')
-        counter_label(label)
 
     def get_user(self, x, y, width, height):
         """ Add an Enter button for user to confirm their username
@@ -343,36 +365,36 @@ class GUI:
             pass
 
         def raise_above_all(window):
-            window.attributes('-topmost', 1)
+            window.attributes('-topmost', 1) # put the username box on top of all other windows
 
         def username_exists():
             """ If username exists..."""
             username_exists_box = Tk()
             username_exists_box.title("Player already exists")
 
-        username_box = Tk()  # figure out why parent window closes as well
-        username_box.title("Player Username")
-        username_box['background'] = '#8cab9c'
+        username_box = Tk()  # create a new window for username box
+        username_box.title("Player Username") # name the box 
+        username_box['background'] = '#8cab9c' # set a background colour
 
         # placing the box
         x, y = 300, 400  # box width and height
-        pos_horizontally = int(self.monitor_width / 2 - (x / 2))  # you don't want it in the middle of the screen
-        pos_vertically = int(self.monitor_height / 2 - (y / 2))  # but in the middle self.master
+        pos_horizontally = int(self.monitor_width / 2 - (x / 2))  # finding co-ordinates to place the box 
+        pos_vertically = int(self.monitor_height / 2 - (y / 2))  # in the middle of self.master
         res = "{}x{}+{}+{}"
         username_box.geometry(res.format(x, y, pos_horizontally, pos_vertically))  # pos in the middle of the screen
 
-        # widgets
+        # Username Box widgets
         label_text = "Username must be between 3-15 characters \nValid characters: a-z 0-9 _&$£-.\nPlease enter your username:\n"
         label = Label(username_box, wraplength=180, justify="center", bg='#617D6F', fg="#ffffff", text=label_text)
         label.place(height=200, width=180, relx=0.5, rely=0.4, anchor='center')
 
-        input_box = Text(username_box, font=('Arial', 12), bg="#F8F8FF")
+        input_box = Text(username_box, font=('Arial', 12), bg="#F8F8FF") # box where user enters their username
         input_box.place(height=25, width=120, relx=0.5, rely=0.5, anchor='center')
 
-        enter_button = Button(username_box, text="Enter", command=enter)
+        enter_button = Button(username_box, text="Enter", command=enter) # creating a button to submit username
         enter_button.place(height=30, width=80, relx=0.5, rely=0.6, anchor='center')
 
-        exit_button = Button(username_box, text="Exit", command=username_box.destroy)
+        exit_button = Button(username_box, text="Exit", command=username_box.destroy) # exits the program
         exit_button.place(height=30, width=60, relx=0.5, rely=0.7, anchor='center')
         """ You have to do username restrictions:
                 isalnum(), &, %, _  <- use regex
