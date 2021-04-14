@@ -242,25 +242,26 @@ class GUI:
         text_string = StringVar()
 
         def start():
-            self.input_box.delete(1.0, END)
+            self.input_box.delete("0", END)
             stopwatch.start()
             update()
 
         def start_with_button():
             # waits 1 second until player puts their cursor in typing field
             stopwatch.reset()
-            self.input_box.delete(1.0, END)
+            self.input_box.delete("0", END)
             time.sleep(1)
             stopwatch.start()
             update()
 
         def restart():
             stopwatch.reset()
-            self.input_box.delete(1.0, END)
+            self.input_box.delete("0", END)
 
-        def update():
+        def update(): 
             time_label.configure(text=str(stopwatch))
             self.master.after(50, update)
+            
 
         def stop():
             stopped_time = stopwatch.stop()
@@ -269,7 +270,7 @@ class GUI:
 
         def on_typing(e):
             stopwatch.reset()
-            self.input_box.delete(1.0, END)
+            self.input_box.delete("0", END)
             time.sleep(0.5)
             stopwatch.start()
             update()
@@ -299,10 +300,10 @@ class GUI:
 
         def entry_box():
             self.running = True 
-            self.input_box = Text(self.master, font=('Arial', 12), bg="#F8F8FF")
+            self.input_box = Entry(self.master, font=('Arial', 12), bg="#F8F8FF")
             self.input_box.place(height=30, width=300, relx=0.5, rely=0.5, anchor='center')
              
-            first_char = self.input_box.get(1.0)
+            first_char = self.input_box.get()
             print(first_char)
             if (first_char is not None):
                 print("Not Null")
