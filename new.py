@@ -147,7 +147,7 @@ class GUI:
         self.monitor_width = root.winfo_screenwidth()
         self.monitor_height = root.winfo_screenheight()
 
-       # self.get_user(self.x, self.y, self.monitor_width, self.monitor_height)
+        # self.get_user(self.x, self.y, self.monitor_width, self.monitor_height)
 
         self.place_on_screen(self.x, self.y,
                              self.monitor_width, self.monitor_height)
@@ -242,14 +242,15 @@ class GUI:
         text_string = StringVar()
 
         def start():
-            self.text_box.delete(1.0, END)
+            self.input_box.delete(1.0, END)
             stopwatch.start()
             update()
 
         def start_with_button():
             # waits 1 second until player puts their cursor in typing field
+            stopwatch.reset()
+            self.input_box.delete(1.0, END)
             time.sleep(1)
-            self.text_box.delete(1.0, END)
             stopwatch.start()
             update()
 
@@ -265,6 +266,15 @@ class GUI:
             stopped_time = stopwatch.stop()
             stopwatch.stop()
             return stopped_time
+
+        def on_typing(e):
+            stopwatch.reset()
+            self.input_box.delete(1.0, END)
+            time.sleep(0.5)
+            stopwatch.start()
+            update()
+
+        self.input_box.bind("<FocusIn>", on_typing) 
 
         self.start_button = Button(self.master, text="Press me to start", command=start_with_button)
         self.start_button.place(height=30, width=100, relx=0.37, rely=0.6, anchor='center')
@@ -288,14 +298,20 @@ class GUI:
             self.text_box.config(state=DISABLED)  # read-only
 
         def entry_box():
+            self.running = True 
             self.input_box = Text(self.master, font=('Arial', 12), bg="#F8F8FF")
             self.input_box.place(height=30, width=300, relx=0.5, rely=0.5, anchor='center')
-
+             
+            first_char = self.input_box.get(1.0)
+            print(first_char)
+            if (first_char is not None):
+                print("Not Null")
+        
         text_box()
         entry_box()
 
     def buttons(self):
-        # def start():                       # 07/04/2021 I decided to move those methods to
+        # def start():                       # 07/04/2021 15:00 I decided to move those methods to
         #     self.text_box.delete(1.0, END)    # the timer function
         #     self.timer()
 
