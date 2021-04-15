@@ -259,6 +259,9 @@ class GUI:
         def restart():
             stopwatch.reset()
             self.input_box.delete("0", END)
+            self.master.focus_set() # allows you to focus back in 
+                                    # the entry widget again and
+                                    # start timer on typing
 
         def update(): 
             time_label.configure(text=str(stopwatch))
@@ -354,11 +357,7 @@ class GUI:
             from that genre making a link to the database
             """
 
-        # self.start_button = Button(self.master, text="Press me to start", command=start)
-        # self.start_button.place(height=30, width=100, relx=0.37, rely=0.6, anchor='center')
-
-        # self.restart_button = Button(self.master, text="Restart", command=restart)
-        # self.restart_button.place(height=30, width=100, relx=0.5, rely=0.6, anchor='center')
+        # 'Restart' and 'Start' buttons were here before moved to self.timer()
 
         self.genre_button = Button(self.master, text="Genre", command=_genre_button)
         self.genre_button.place(height=30, width=100, relx=0.63, rely=0.6, anchor='center')
