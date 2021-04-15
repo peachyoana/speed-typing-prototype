@@ -338,7 +338,7 @@ class GUI:
             return True
 
         def display_stats():
-            self.stats_window = Toplevel(self.master)
+            self.stats_window = Toplevel(self.master) # create a window on top
 
             x, y = 400, 300  # box width and height
             pos_horizontally = int(self.monitor_width / 2 - (x / 2))  # finding co-ordinates to place the box 
