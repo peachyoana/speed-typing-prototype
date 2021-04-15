@@ -139,6 +139,8 @@ class GUI:
         self.optionsmenu = Menu(self.menubar)  # initiate options menu
         self.helpmenu = Menu(self.menubar, tearoff=0)  # initiate help menu
         self.master.resizable(False, False) # don't allow user to resize box
+        self.text_var = StringVar()
+        self.score = 0
         
         # screen stats
         self.x = 800
@@ -295,19 +297,33 @@ class GUI:
                                  wrap=WORD)
 
             self.text_box.place(height=130, width=300, relx=0.5, rely=0.3, anchor='center')
-            self.text_box.insert('0.0', self.text)  # selects a random paragraph by default
+            self.text_box.insert(1.0, self.text)  # selects a random paragraph by default
             self.text_box.config(state=DISABLED)  # read-only
 
         def entry_box():
-            self.running = True 
             self.input_box = Entry(self.master, font=('Arial', 12), bg="#F8F8FF")
             self.input_box.place(height=30, width=300, relx=0.5, rely=0.5, anchor='center')
-             
-            first_char = self.input_box.get()
-            print(first_char)
-            if (first_char is not None):
-                print("Not Null")
+
+            reg = self.master.register(correct)
+            self.input_box.config(validate="key", validatecommand=(reg, '%P', self.text))
         
+        def correct(inp, text):
+            if re.match(inp, text):
+                self.input_box.config(fg='green')
+                self.score += 1
+                print("True")
+            else:
+                self.score -= 1
+                self.input_box.config(fg='red')
+                print("False")
+            return True
+
+        def display_stats():
+            self.stats_window = Toplevel(self.master)
+            label = Label(self.stats_window, text="Statistics", font=('Arial', 12, "Bold"))
+            label.place(relx=0.5, rely=0.2)
+        self.text_var.set(self.text)
+        self.text = self.text_var.get()        
         text_box()
         entry_box()
 
@@ -428,6 +444,11 @@ class GUI:
 Have a function that gets text from database and pass it in
 into text box widget in the gui class
 """
+texts = [ "Hello there!",
+          "How are you doing?",
+          "It's a beautiful day outside. Birds are singing, flowers are blooming. On days like these, kids like you should be burning in Hell"
+]
+
 
 root = Tk()
-my_gui = GUI(root, "TEXT")
+my_gui = GUI(root, random.choice(texts))
