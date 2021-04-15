@@ -139,6 +139,8 @@ class GUI:
         self.optionsmenu = Menu(self.menubar)  # initiate options menu
         self.helpmenu = Menu(self.menubar, tearoff=0)  # initiate help menu
         self.master.resizable(False, False) # don't allow user to resize box
+
+        self.stats_variable = StringVar()
         self.text_var = StringVar()
         self.score = 0
         
@@ -268,7 +270,7 @@ class GUI:
             self.master.after(50, update)
             
 
-        def stop():
+        def stop(self):
             stopped_time = stopwatch.stop()
             stopwatch.stop()
             return stopped_time
@@ -280,7 +282,12 @@ class GUI:
             stopwatch.start()
             update()
 
+        self.stopped_time = stop(self) # to ensure that I have the same
+                                       # stopped time in both
+                                       # the timer and the printout
+
         self.input_box.bind("<FocusIn>", on_typing) 
+        self.input_box.bind("<FocusOut>", stop)
 
         self.start_button = Button(self.master, text="Press me to start", command=start_with_button)
         self.start_button.place(height=30, width=100, relx=0.37, rely=0.6, anchor='center')
@@ -293,6 +300,7 @@ class GUI:
    
    
     def interaction_boxes(self):
+        stopwatch = Stopwatch()    
         def text_box():
             self.text_box = Text(self.master,
                                  font=('Arial', 12),
@@ -311,6 +319,14 @@ class GUI:
             self.input_box.config(validate="key", validatecommand=(reg, '%P', self.text))
         
         def correct(inp, text):
+            if inp == self.text_box.get(1.0, 'end-1c'): 
+                stopwatch.stop()
+                self.master.focus_set()
+                print("END")
+                attempt_time = str(self.stopped_time).replace("s", "")
+                print("Your attempt time is:", attempt_time, "seconds.")
+                display_stats()
+
             if re.match(inp, text):
                 self.input_box.config(fg='green')
                 self.score += 1
@@ -323,8 +339,18 @@ class GUI:
 
         def display_stats():
             self.stats_window = Toplevel(self.master)
-            label = Label(self.stats_window, text="Statistics", font=('Arial', 12, "Bold"))
-            label.place(relx=0.5, rely=0.2)
+
+            x, y = 400, 300  # box width and height
+            pos_horizontally = int(self.monitor_width / 2 - (x / 2))  # finding co-ordinates to place the box 
+            pos_vertically = int(self.monitor_height / 2 - (y / 2))  # in the middle of self.master
+            res = "{}x{}+{}+{}"
+            self.stats_window.geometry(res.format(x, y, pos_horizontally, pos_vertically))
+
+            label = Label(self.stats_window, text="Statistics", font=('Arial', 12, 'bold'))
+            label.place(width=100, height=30, relx=0.5, rely=0.2, anchor='center')
+
+            stats_label = Label(self.stats_window, textvariable=self.stats_variable)
+
         self.text_var.set(self.text)
         self.text = self.text_var.get()        
         text_box()
